@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProNaz Fit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --sage: #4a7c59;
+    --sage-light: #e8f0eb;
+    --sage-mid: #7aaa88;
+    --cream: #faf8f3;
+    --warm-dark: #2a2520;
+    --warm-mid: #6b6358;
+    --warm-light: #c9c0b0;
+    --accent: #c4783a;
+    --accent-light: #f5ede3;
+    --danger: #c44a4a;
+    --danger-light: #fce8e8;
+    --card: #ffffff;
+    --border: rgba(74,124,89,0.15);
+    --shadow: 0 2px 20px rgba(42,37,32,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--warm-dark);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--warm-dark);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--sage-mid); }
+  .user-toggle {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.08);
+    border-radius: 100px;
+    padding: 4px;
+  }
+  .user-btn {
+    padding: 6px 18px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+  }
+  .user-btn.active {
+    background: var(--sage);
+    color: #fff;
+  }
+
+  /* MAIN LAYOUT */
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; border-bottom: 1.5px solid var(--border); margin-bottom: 2rem; }
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--warm-mid);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1.5px;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--sage);
+    border-bottom-color: var(--sage);
+  }
+
+  /* SECTION */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* PROFILE SECTION */
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 600px) { .profile-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+    color: var(--warm-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--sage);
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--warm-mid);
+    margin-bottom: 6px;
+  }
+  input[type="number"], input[type="date"], select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--warm-dark);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 1rem;
+  }
+  input:focus, select:focus {
+    border-color: var(--sage);
+    background: #fff;
+  }
+
+  .field-row { display: flex; gap: 0.75rem; }
+  .field-row > * { flex: 1; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 22px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-primary {
+    background: var(--sage);
+    color: #fff;
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+  .btn-primary:hover { background: #3d6b4c; }
+  .btn-accent {
+    background: var(--accent);
+    color: #fff;
+    width: 100%;
+  }
+  .btn-accent:hover { background: #b06830; }
+
+  /* IDEAL WEIGHT DISPLAY */
+  .ideal-weight-box {
+    background: var(--sage-light);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+  .ideal-weight-box.show { display: block; }
+  .ideal-label { font-size: 12px; color: var(--sage); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  .ideal-value { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--sage); margin: 4px 0; }
+  .ideal-range { font-size: 13px; color: var(--warm-mid); }
+  .bmi-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* LOG SECTION */
+  .log-entry-card { margin-bottom: 1.5rem; }
+  .progress-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .progress-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+  }
+  .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warm-mid); margin-bottom: 4px; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--warm-dark); }
+  .stat-sub { font-size: 11px; color: var(--warm-light); margin-top: 2px; }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin-bottom: 1.5rem; }
+  .progress-bar-bg {
+    height: 8px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--sage-mid), var(--sage));
+    transition: width 0.6s ease;
+  }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--warm-mid); }
+
+  /* LOG TABLE */
+  .log-table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--warm-mid);
+    border-bottom: 1.5px solid var(--border);
+  }
+  td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--sage-light);
+    color: var(--warm-dark);
+  }
+  tr:last-child td { border-bottom: none; }
+  .change-pos { color: var(--sage); font-weight: 600; }
+  .change-neg { color: var(--danger); font-weight: 600; }
+  .delete-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--warm-light); font-size: 16px; padding: 2px 6px;
+    border-radius: 6px; transition: all 0.15s;
+  }
+  .delete-btn:hover { color: var(--danger); background: var(--danger-light); }
+
+  /* CHART */
+  .chart-wrap { position: relative; width: 100%; height: 260px; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--warm-mid);
+  }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .empty-text { font-size: 1rem; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--warm-dark);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .section-intro {
+    font-size: 13px;
+    color: var(--warm-mid);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  /* Greeting */
+  .greeting {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    margin-bottom: 0.25rem;
+  }
+  .current-user-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--sage-light);
+    color: var(--sage);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .page-header { margin-bottom: 1.75rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ProNaz <span>Fit</span></div>
+  <div class="user-toggle">
+    <button class="user-btn active" onclick="switchUser('prottoy')">Prottoy</button>
+    <button class="user-btn" onclick="switchUser('nazia')">Nazia</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="page-header">
+    <div class="greeting" id="greeting">Hello, Prottoy 👋</div>
+    <span class="current-user-tag" id="user-tag">Your dashboard</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('profile')">Profile & Goals</button>
+    <button class="tab-btn" onclick="showTab('log')">Daily Log</button>
+    <button class="tab-btn" onclick="showTab('progress')">Progress</button>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div class="section active" id="tab-profile">
+    <p class="section-intro">Enter your details to calculate your ideal weight range and set your personal goal.</p>
+    <div class="profile-grid">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> Your Details</div>
+        <label>Height (cm)</label>
+        <input type="number" id="height" placeholder="e.g. 178" min="100" max="250">
+        <label>Current Weight (kg)</label>
+        <input type="number" id="current-weight" placeholder="e.g. 92" min="30" max="300" step="0.1">
+        <label>Age</label>
+        <input type="number" id="age" placeholder="e.g. 34" min="10" max="100">
+        <label>Sex</label>
+        <select id="sex">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        <label>Goal Weight (kg)</label>
+        <input type="number" id="goal-weight" placeholder="e.g. 80" min="30" max="200" step="0.1">
+        <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-title"><span class="dot" style="background:var(--accent)"></span> Ideal Weight Range</div>
+          <div class="ideal-weight-box" id="ideal-box">
+            <div class="ideal-label">Healthy Weight Range</div>
+            <div class="ideal-value" id="ideal-val">—</div>
+            <div class="ideal-range" id="ideal-range">Based on BMI 18.5–24.9</div>
+            <div>
+              <span class="bmi-badge" id="bmi-badge">—</span>
+            </div>
+          </div>
+          <p id="ideal-placeholder" style="font-size:13px; color:var(--warm-mid); margin-top:0.5rem;">Save your height to see your ideal weight range.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent)"></span> BMI Guide</div>
+          <div style="font-size: 13px; line-height: 2; color: var(--warm-mid);">
+            <div style="display:flex; justify-content:space-between;"><span>Below 18.5</span><span style="color:#c4783a; font-weight:600;">Underweight</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>18.5 – 24.9</span><span style="color:var(--sage); font-weight:600;">Healthy ✓</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>25 – 29.9</span><span style="color:#b07030; font-weight:600;">Overweight</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>30 and above</span><span style="color:var(--danger); font-weight:600;">Obese</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div class="section" id="tab-log">
+    <div class="card log-entry-card">
+      <div class="card-title"><span class="dot"></span> Log Today's Weight</div>
+      <div class="field-row">
+        <div>
+          <label>Date</label>
+          <input type="date" id="log-date">
+        </div>
+        <div>
+          <label>Weight (kg)</label>
+          <input type="number" id="log-weight" placeholder="e.g. 91.5" min="30" max="300" step="0.1">
+        </div>
+      </div>
+      <label>Notes (optional)</label>
+      <input type="text" id="log-note" placeholder="e.g. After gym, felt great" style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:15px; background:var(--cream); outline:none; margin-bottom:1rem; color:var(--warm-dark);" onfocus="this.style.borderColor='var(--sage)'; this.style.background='#fff'" onblur="this.style.borderColor='var(--border)'; this.style.background='var(--cream)'">
+      <button class="btn btn-accent" onclick="logWeight()">Log Weight</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> Weight History</div>
+      <div class="log-table-wrap">
+        <div id="log-empty" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-text">No entries yet. Log your first weight above.</div>
+        </div>
+        <table id="log-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Weight (kg)</th>
+              <th>Change</th>
+              <th>Note</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS TAB -->
+  <div class="section" id="tab-progress">
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Starting Weight</div>
+        <div class="stat-value" id="stat-start">—</div>
+        <div class="stat-sub">kg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current Weight</div>
+        <div class="stat-value" id="stat-current">—</div>
+        <div class="stat-sub">kg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Lost</div>
+        <div class="stat-value" id="stat-lost">—</div>
+        <div class="stat-sub">kg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Goal Weight</div>
+        <div class="stat-value" id="stat-goal">—</div>
+        <div class="stat-sub">kg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Still to Go</div>
+        <div class="stat-value" id="stat-remaining">—</div>
+        <div class="stat-sub">kg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Entries Logged</div>
+        <div class="stat-value" id="stat-count">0</div>
+        <div class="stat-sub">days</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="prog-start-label">Start</span>
+          <span id="prog-pct-label">0%</span>
+          <span id="prog-goal-label">Goal</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="prog-bar" style="width:0%"></div>
+        </div>
+        <div style="font-size:12px; color:var(--warm-mid); margin-top:6px;" id="prog-msg">Log your weight to see progress.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> Weight Over Time</div>
+      <div id="chart-empty" class="empty-state" style="display:none;">
+        <div class="empty-icon">📈</div>
+        <div class="empty-text">Log at least 2 entries to see your trend chart.</div>
+      </div>
+      <div class="chart-wrap" id="chart-wrap">
+        <canvas id="weightChart" role="img" aria-label="Weight progress chart over time">Weight progress chart</canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentUser = 'prottoy';
+let chart = null;
+
+const USERS = {
+  prottoy: { name: 'Prottoy', greeting: 'Hello, Prottoy 👋' },
+  nazia: { name: 'Nazia', greeting: 'Hello, Nazia 🌸' }
+};
+
+function getKey(k) { return `pronaz_${currentUser}_${k}`; }
+function save(k, v) { localStorage.setItem(getKey(k), JSON.stringify(v)); }
+function load(k, def) {
+  const v = localStorage.getItem(getKey(k));
+  return v !== null ? JSON.parse(v) : def;
+}
+
+function switchUser(user) {
+  currentUser = user;
+  document.querySelectorAll('.user-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase() === user);
+  });
+  document.getElementById('greeting').textContent = USERS[user].greeting;
+  document.getElementById('user-tag').textContent = user === 'prottoy' ? 'Your dashboard' : 'Her dashboard';
+  loadProfile();
+  renderLog();
+  renderProgress();
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'progress') renderProgress();
+  if (tab === 'log') renderLog();
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function calcIdealWeight(heightCm) {
+  const h = heightCm / 100;
+  const low = (18.5 * h * h).toFixed(1);
+  const high = (24.9 * h * h).toFixed(1);
+  const mid = ((18.5 + 24.9) / 2 * h * h).toFixed(1);
+  return { low, high, mid };
+}
+
+function bmiCategory(bmi) {
+  if (bmi < 18.5) return { label: 'Underweight', color: '#c4783a', bg: '#f5ede3' };
+  if (bmi < 25) return { label: 'Healthy Weight ✓', color: '#3d6b4c', bg: '#e8f0eb' };
+  if (bmi < 30) return { label: 'Overweight', color: '#b07030', bg: '#faebd7' };
+  return { label: 'Obese', color: '#c44a4a', bg: '#fce8e8' };
+}
+
+function saveProfile() {
+  const h = parseFloat(document.getElementById('height').value);
+  const w = parseFloat(document.getElementById('current-weight').value);
+  const age = parseInt(document.getElementById('age').value);
+  const sex = document.getElementById('sex').value;
+  const goal = parseFloat(document.getElementById('goal-weight').value);
+
+  if (!h || h < 100) { toast('Please enter a valid height.'); return; }
+  if (!w || w < 30) { toast('Please enter a valid current weight.'); return; }
+
+  save('profile', { height: h, startWeight: w, age, sex, goalWeight: goal || null });
+  updateIdealDisplay(h, w);
+  toast('Profile saved!');
+}
+
+function loadProfile() {
+  const p = load('profile', null);
+  if (p) {
+    document.getElementById('height').value = p.height || '';
+    document.getElementById('current-weight').value = p.startWeight || '';
+    document.getElementById('age').value = p.age || '';
+    document.getElementById('sex').value = p.sex || 'male';
+    document.getElementById('goal-weight').value = p.goalWeight || '';
+    if (p.height) updateIdealDisplay(p.height, p.startWeight);
+  } else {
+    document.getElementById('height').value = '';
+    document.getElementById('current-weight').value = '';
+    document.getElementById('age').value = '';
+    document.getElementById('goal-weight').value = '';
+    document.getElementById('ideal-box').classList.remove('show');
+    document.getElementById('ideal-placeholder').style.display = 'block';
+  }
+}
+
+function updateIdealDisplay(h, w) {
+  const { low, high, mid } = calcIdealWeight(h);
+  document.getElementById('ideal-val').textContent = low + ' – ' + high + ' kg';
+  document.getElementById('ideal-range').textContent = 'Midpoint: ' + mid + ' kg (BMI 18.5–24.9)';
+  const bmi = w / Math.pow(h / 100, 2);
+  const cat = bmiCategory(bmi);
+  const badge = document.getElementById('bmi-badge');
+  badge.textContent = 'Your BMI: ' + bmi.toFixed(1) + ' — ' + cat.label;
+  badge.style.background = cat.bg;
+  badge.style.color = cat.color;
+  document.getElementById('ideal-box').classList.add('show');
+  document.getElementById('ideal-placeholder').style.display = 'none';
+}
+
+function logWeight() {
+  const date = document.getElementById('log-date').value;
+  const weight = parseFloat(document.getElementById('log-weight').value);
+  const note = document.getElementById('log-note').value.trim();
+
+  if (!date) { toast('Please select a date.'); return; }
+  if (!weight || weight < 30) { toast('Please enter a valid weight.'); return; }
+
+  const logs = load('logs', []);
+  const existing = logs.findIndex(l => l.date === date);
+  if (existing >= 0) {
+    logs[existing] = { date, weight, note };
+    toast('Entry updated!');
+  } else {
+    logs.push({ date, weight, note });
+    toast('Weight logged!');
+  }
+  logs.sort((a, b) => b.date.localeCompare(a.date));
+  save('logs', logs);
+
+  document.getElementById('log-weight').value = '';
+  document.getElementById('log-note').value = '';
+  renderLog();
+  renderProgress();
+}
+
+function deleteLog(date) {
+  const logs = load('logs', []).filter(l => l.date !== date);
+  save('logs', logs);
+  renderLog();
+  renderProgress();
+  toast('Entry removed.');
+}
+
+function renderLog() {
+  const logs = load('logs', []);
+  const empty = document.getElementById('log-empty');
+  const table = document.getElementById('log-table');
+  const tbody = document.getElementById('log-tbody');
+
+  if (logs.length === 0) {
+    empty.style.display = 'block';
+    table.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  table.style.display = 'table';
+  tbody.innerHTML = '';
+
+  logs.forEach((log, i) => {
+    const prev = logs[i + 1];
+    let changeHTML = '<span style="color:var(--warm-light)">—</span>';
+    if (prev) {
+      const diff = (log.weight - prev.weight).toFixed(1);
+      const cls = diff <= 0 ? 'change-pos' : 'change-neg';
+      const sign = diff > 0 ? '+' : '';
+      changeHTML = `<span class="${cls}">${sign}${diff} kg</span>`;
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${formatDate(log.date)}</td>
+      <td style="font-weight:600;">${log.weight} kg</td>
+      <td>${changeHTML}</td>
+      <td style="color:var(--warm-mid); font-size:13px;">${log.note || '—'}</td>
+      <td><button class="delete-btn" onclick="deleteLog('${log.date}')" title="Remove">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function formatDate(d) {
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function renderProgress() {
+  const logs = load('logs', []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  const profile = load('profile', null);
+
+  const startW = logs.length ? logs[0].weight : null;
+  const currW = logs.length ? logs[logs.length - 1].weight : null;
+  const goalW = profile ? profile.goalWeight : null;
+
+  document.getElementById('stat-start').textContent = startW ? startW + '' : '—';
+  document.getElementById('stat-current').textContent = currW ? currW + '' : '—';
+  document.getElementById('stat-count').textContent = logs.length;
+  document.getElementById('stat-goal').textContent = goalW ? goalW + '' : '—';
+
+  if (startW && currW) {
+    const lost = (startW - currW).toFixed(1);
+    document.getElementById('stat-lost').textContent = lost >= 0 ? lost : '0';
+    if (goalW && startW > goalW) {
+      const totalToLose = startW - goalW;
+      const lostSoFar = startW - currW;
+      const pct = Math.max(0, Math.min(100, (lostSoFar / totalToLose * 100)));
+      const remaining = Math.max(0, currW - goalW).toFixed(1);
+      document.getElementById('stat-remaining').textContent = remaining;
+      document.getElementById('prog-bar').style.width = pct.toFixed(1) + '%';
+      document.getElementById('prog-pct-label').textContent = pct.toFixed(0) + '% there';
+      document.getElementById('prog-start-label').textContent = startW + ' kg';
+      document.getElementById('prog-goal-label').textContent = goalW + ' kg';
+      document.getElementById('prog-msg').textContent = pct >= 100
+        ? '🎉 Goal reached! Amazing work!'
+        : `${lostSoFar.toFixed(1)} kg lost — ${remaining} kg to go.`;
+    } else {
+      document.getElementById('stat-remaining').textContent = '—';
+      document.getElementById('prog-msg').textContent = goalW ? 'Set a goal weight in your profile to track progress.' : 'Add your goal weight in Profile & Goals.';
+    }
+  } else {
+    document.getElementById('stat-lost').textContent = '—';
+    document.getElementById('stat-remaining').textContent = '—';
+  }
+
+  renderChart(logs, goalW);
+}
+
+function renderChart(logs, goalW) {
+  const wrap = document.getElementById('chart-wrap');
+  const empty = document.getElementById('chart-empty');
+
+  if (logs.length < 2) {
+    wrap.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  wrap.style.display = 'block';
+  empty.style.display = 'none';
+
+  const labels = logs.map(l => {
+    const d = new Date(l.date + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  });
+  const weights = logs.map(l => l.weight);
+
+  const datasets = [{
+    label: 'Weight (kg)',
+    data: weights,
+    borderColor: '#4a7c59',
+    backgroundColor: 'rgba(74,124,89,0.1)',
+    borderWidth: 2.5,
+    pointRadius: 5,
+    pointBackgroundColor: '#fff',
+    pointBorderColor: '#4a7c59',
+    pointBorderWidth: 2,
+    fill: true,
+    tension: 0.3
+  }];
+
+  if (goalW) {
+    datasets.push({
+      label: 'Goal',
+      data: Array(logs.length).fill(goalW),
+      borderColor: '#c4783a',
+      borderWidth: 1.5,
+      borderDash: [6, 4],
+      pointRadius: 0,
+      fill: false,
+      tension: 0
+    });
+  }
+
+  if (chart) { chart.destroy(); chart = null; }
+
+  chart = new Chart(document.getElementById('weightChart'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { boxWidth: 12, font: { family: 'DM Sans', size: 12 }, color: '#6b6358' }
+        }
+      },
+      scales: {
+        x: { ticks: { font: { family: 'DM Sans', size: 11 }, color: '#6b6358' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        y: { ticks: { font: { family: 'DM Sans', size: 11 }, color: '#6b6358' }, grid: { color: 'rgba(0,0,0,0.04)' } }
+      }
+    }
+  });
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('log-date').value = today;
+  loadProfile();
+  renderLog();
+});
+</script>
+</body>
+</html>
